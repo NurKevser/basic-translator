@@ -7,17 +7,12 @@ const mic = new SpeechRecognition();
 
 mic.continuous = true;
 mic.interimResults = true;
-mic.lang = "en-US" || "tr-TR";
+mic.lang = "en-US";
 
 const Translation = () => {
-  const [options, setOptions] = useState([]);
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
   const [input, setInput] = useState("");
   const [output, setOutput] = useState("");
-  //speech Recognition
   const [isListening, setIsListening] = useState(false);
-  const [text, setText] = useState(null);
 
   useEffect(() => {
     handleListen();
@@ -46,78 +41,55 @@ const Translation = () => {
         .map((result) => result.transcript)
         .join("");
       console.log(transcript);
-      setText(transcript)
+      setInput(transcript);
       mic.onerror = (event) => {
         console.log(event.error);
       };
     };
   };
 
-  const translate = () => {
-    const params = new URLSearchParams();
-    params.append("q", input);
-    params.append("source", from);
-    params.append("target", to);
-    params.append("api_key", "xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx");
-    axios
-      .post("https://libretranslate.de/translate", params, {
-        headers: {
-          accept: "application/json",
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      })
-      .then((res) => {
-        setOutput(res.data.translatedText);
-      });
-  };
+  const API_KEY = "AIzaSyAsXHjBeoy5CDgNgp6lWUnIo-d3NraDho8";
+  const DETECT_LANG = "en";
+  const TARGET_LANG = "tr";
 
-  useEffect(() => {
-    axios
-      .get("https://libretranslate.com/languages", {
-        headers: { accept: "application/json" },
+  const translate = async () => { 
+
+    const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}&q=${input}&source=${DETECT_LANG}&target=${TARGET_LANG}`;
+    await fetch(url, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+    })
+      .then((res) => res.json())
+      .then((response) => {
+        setOutput(response.data.translations[0].translatedText);
       })
-      .then((res) => {
-        setOptions(res.data);
+      .catch((error) => {
+        console.log(error);
       });
-  }, []);
+    };
+    
+    
   return (
     <div>
       <div>Basic Translator</div>
       <div className="container">
-        <div className="detect-lang">
-          <select
-            className="detect-lang_from"
-            onChange={(e) => setFrom(e.target.value)}
-          >
-            {options.map((opt) => (
-              <option key={opt.code} value={opt.code}>
-                {opt.name}
-              </option>
-            ))}
-          </select>
-          <select
-            className="detect-lang_from"
-            onChange={(e) => setTo(e.target.value)}
-          >
-            {options.map((opt) => (
-              <option key={opt.code} value={opt.code}>
-                {opt.name}
-              </option>
-            ))}
-          </select>
-        </div>
+        <div className="language">English</div>
         <div className="text">
           <div className="text from">
             <textarea
               cols="30"
               rows="10"
               onInput={(e) => setInput(e.target.value)}
-              value={text}
+              value={input}
             ></textarea>
           </div>
-          
-            <span onClick={() => setIsListening(prevState => !prevState)}>&#127897;</span>
-         
+          <span onClick={() => setIsListening((prevState) => !prevState)}>
+            &#127897;
+          </span>
+        <div className="language">Turkish</div>
           <div className="text to">
             <textarea cols="30" rows="10" value={output}></textarea>
           </div>
