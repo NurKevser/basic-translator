@@ -10,9 +10,13 @@ mic.interimResults = true;
 mic.lang = "en-US";
 
 const Translation = () => {
-  const [input, setInput] = useState("");
+  const [input, setInput] = useState("");//handle both written and spoken input
   const [output, setOutput] = useState("");
   const [isListening, setIsListening] = useState(false);
+
+  const handleShowHistory = () => {
+    
+  }
 
   useEffect(() => {
     handleListen();
@@ -71,7 +75,6 @@ const Translation = () => {
       });
     };
     
-    
   return (
     <div>
       <div>Basic Translator</div>
@@ -86,15 +89,15 @@ const Translation = () => {
               value={input}
             ></textarea>
           </div>
-          <span onClick={() => setIsListening((prevState) => !prevState)}>
+          <span className="mic" onClick={() => setIsListening((prevState) => !prevState)}>
             &#127897;
           </span>
         <div className="language">Turkish</div>
           <div className="text to">
-            <textarea cols="30" rows="10" value={output}></textarea>
+            <textarea cols="30" rows="10" value={output} onChange={translate(output)}></textarea>
           </div>
         </div>
-        <button onClick={(e) => translate()}>Translate</button>
+        <div className="history" onClick={handleShowHistory}>&#8635;</div>
       </div>
     </div>
   );
