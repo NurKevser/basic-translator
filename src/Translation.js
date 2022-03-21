@@ -22,13 +22,6 @@ const Translation = () => {
 
   const store = JSON.parse(localStorage.getItem("LocalHistory"));
 
-  console.log(interimInput);
-
-  console.log(history);
-  useEffect(() => {
-    getHistory();
-  }, []);
-
   useEffect(() => {
     translate(output);
   }, [input]);
@@ -39,11 +32,6 @@ const Translation = () => {
 
   const handleShowHistory = () => {
     setTableShow(!tableShow);
-  };
-
-  const getHistory = () => {
-    const localHistory = localStorage.getItem("history") ?? [];
-    console.log(localHistory);
   };
 
   const handleInput = (event) => {
@@ -96,7 +84,6 @@ const Translation = () => {
         .map((result) => result[0])
         .map((result) => result.transcript)
         .join("");
-      console.log(transcript);
       setInput(transcript);
       mic.onerror = (event) => {
         console.log(event.error);
@@ -129,25 +116,28 @@ const Translation = () => {
   return (
     <div className="container">
       <header>Basic Translator</header>
-      <div className="language">English</div>
-      <div className="text input">
-        <textarea
-          cols="30"
-          rows="10"
-          onInput={handleInput}
-          onKeyDown={handleKeyDown}
-          value={input}
-        ></textarea>
+      <div className="container-box">
+        <div className="text input">
+          <div className="language">English</div>
+          <textarea
+            cols="30"
+            rows="10"
+            onInput={handleInput}
+            onKeyDown={handleKeyDown}
+            value={input}
+          ></textarea>
+        </div>
+        <div className="text output">
+          <div className="language">Turkish</div>
+          <textarea cols="30" rows="10" defaultValue={output}></textarea>
+        </div>
       </div>
       <span
         className="mic"
-        onClick={() => setIsListening((prevState) => !prevState)}>
+        onClick={() => setIsListening((prevState) => !prevState)}
+      >
         &#127897;
       </span>
-      <div className="language">Turkish</div>
-      <div className="text output">
-        <textarea cols="30" rows="10" defaultValue={output}></textarea>
-      </div>
       <div className="history" onClick={handleShowHistory}>
         &#8635;
         {tableShow && <div>{store.input}</div>}
