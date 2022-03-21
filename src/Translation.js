@@ -16,18 +16,10 @@ const Translation = () => {
   const [interimInput, setInterimInput] = useState([]);
   const [interimOutput, setInterimOutput] = useState([]);
   const [tableShow, setTableShow] = useState(false);
-  // const [history, setHistory] = useState(
-  //   (JSON.parse(localStorage.getItem("LocalHistory")) || {input: [], output:[]})
-  // );
+  const [history, setHistory] = useState(
+    JSON.parse(localStorage.getItem("LocalHistory")) || []
+  );
 
-  const [history, setHistory] = useState((JSON.parse(localStorage.getItem("LocalHistory")) || []))
-
-  const store = JSON.parse(localStorage.getItem("LocalHistory"));
-
-  // useEffect(() => {
-  //   getHistory();
-  // }, []);
-console.log("history",history);
   useEffect(() => {
     translate(output);
   }, [input]);
@@ -40,40 +32,30 @@ console.log("history",history);
     setTableShow(!tableShow);
   };
 
-  // const getHistory = () => {
-  //   const localHistory = localStorage.getItem("LocalHistory") ?? [];
-  // };
-
   const handleInput = (event) => {
     setInput(event.target.value);
-    console.log(event.taget.value);
-    if (event.target.value.trim() === "") {
-      // setHistory({
-        //   input: [...history.input, interimInput[0]],
-        //   output: [...history.output, interimOutput[0]],
-        // });
-        
-        setHistory([...history, {input:interimInput[0], output:interimOutput[0]}])
-        localStorage.setItem(
-          "LocalHistory",
-          JSON.stringify([...history, {input:interimInput[0], output:interimOutput[0]}])
-          // JSON.stringify({
-            //   input: [...history.input, interimInput[0]],
-            //   output: [...history.output, interimOutput[0]],
-            // })
-            );
-            setInterimInput([]);
-            setInterimOutput([]);
-          }
-        };
-        
-        
+    if (event.target.value === "") {
+      setHistory([
+        ...history,
+        { input: interimInput[0].trim(), output: interimOutput[0] },
+      ]);
+      localStorage.setItem(
+        "LocalHistory",
+        JSON.stringify([
+          ...history,
+          { input: interimInput[0].trim(), output: interimOutput[0] },
+        ])
+      );
+    }
+  };
+
   const handleKeyDown = (event) => {
     if (event.keyCode === 8) {
-      // setHistory(event.target.value)
-      console.log("event", event.target.value);
-      setInterimInput([...interimInput, event.target.value]);
+      setInterimInput([...interimInput, event.target.value,]);
       setInterimOutput([...interimOutput, output]);
+    } else {
+      setInterimInput([]);
+      setInterimOutput([]);
     }
   };
 
@@ -81,7 +63,6 @@ console.log("history",history);
     if (isListening) {
       mic.start();
       mic.onend = () => {
-        console.log("continue..");
         mic.start();
       };
     } else {
@@ -133,9 +114,9 @@ console.log("history",history);
       <header>Basic Translator</header>
       <div className="container-box">
         <div className="text input">
-          <div className="language">English</div>
+          <div className="lang detect">English</div>
           <textarea
-            cols="30"
+            cols="60"
             rows="10"
             onChange={handleInput}
             onKeyDown={handleKeyDown}
@@ -143,19 +124,32 @@ console.log("history",history);
           ></textarea>
         </div>
         <div className="text output">
-          <div className="language">Turkish</div>
-          <textarea cols="30" rows="10" defaultValue={output}></textarea>
+          <div className="lang target">Turkish</div>
+          <textarea cols="60" rows="10" defaultValue={output}></textarea>
         </div>
       </div>
       <span
-        className="mic"
+        className={isListening ? "micOn" : "micOff"}
         onClick={() => setIsListening((prevState) => !prevState)}
       >
         &#127897;
       </span>
       <div className="history" onClick={handleShowHistory}>
-        &#8635;
-        {tableShow && <div>{store.input}</div>}
+        <span>&#8635;</span>
+        {tableShow && (
+          <div className="table">
+           <div className="table-header">
+           <div>English</div>
+            <div>Turkish</div>
+           </div>
+            {history?.map((item, i) => (
+              <div key={i} className="table-row">
+              <div>{item.input}</div>
+              <div>{item.output}</div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </div>
   );
