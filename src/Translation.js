@@ -1,5 +1,5 @@
-import axios from "axios";
 import React, { useEffect, useState } from "react";
+import "./style/translation.scss";
 
 const SpeechRecognition =
   window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -10,17 +10,69 @@ mic.interimResults = true;
 mic.lang = "en-US";
 
 const Translation = () => {
-  const [input, setInput] = useState("");//handle both written and spoken input
+  const [input, setInput] = useState(""); //handle both written and spoken input
   const [output, setOutput] = useState("");
   const [isListening, setIsListening] = useState(false);
+  const [interimInput, setInterimInput] = useState([]);
+  const [interimOutput, setInterimOutput] = useState([]);
+  const [tableShow, setTableShow] = useState(false);
+  const [history, setHistory] = useState(
+    JSON.parse(localStorage.getItem("LocalHistory"))
+  );
 
-  const handleShowHistory = () => {
-    
-  }
+  const store = JSON.parse(localStorage.getItem("LocalHistory"));
+
+  console.log(interimInput);
+
+  console.log(history);
+  useEffect(() => {
+    getHistory();
+  }, []);
+
+  useEffect(() => {
+    translate(output);
+  }, [input]);
 
   useEffect(() => {
     handleListen();
   }, [isListening]);
+
+  const handleShowHistory = () => {
+    setTableShow(!tableShow);
+  };
+
+  const getHistory = () => {
+    const localHistory = localStorage.getItem("history") ?? [];
+    console.log(localHistory);
+  };
+
+  const handleInput = (event) => {
+    setInput(event.target.value);
+    if (event.target.value.trim() === "" || event.target.value.trim() === " ") {
+      setHistory({
+        input: [...history.input, interimInput[0]],
+        output: [...history.output, interimOutput[0]],
+      });
+      localStorage.setItem(
+        "LocalHistory",
+        JSON.stringify({
+          input: [...history.input, interimInput[0]],
+          output: [...history.output, interimOutput[0]],
+        })
+      );
+      setInterimInput([]);
+      setInterimOutput([]);
+    }
+  };
+
+  const handleKeyDown = (event) => {
+    if (event.keyCode === 8) {
+      // setHistory(event.target.value)
+      console.log("event", event.target.value);
+      setInterimInput([...interimInput, event.target.value]);
+      setInterimOutput([...interimOutput, output]);
+    }
+  };
 
   const handleListen = () => {
     if (isListening) {
@@ -56,8 +108,7 @@ const Translation = () => {
   const DETECT_LANG = "en";
   const TARGET_LANG = "tr";
 
-  const translate = async () => { 
-
+  const translate = async () => {
     const url = `https://translation.googleapis.com/language/translate/v2?key=${API_KEY}&q=${input}&source=${DETECT_LANG}&target=${TARGET_LANG}`;
     await fetch(url, {
       method: "GET",
@@ -73,31 +124,33 @@ const Translation = () => {
       .catch((error) => {
         console.log(error);
       });
-    };
-    
+  };
+
   return (
-    <div>
-      <div>Basic Translator</div>
-      <div className="container">
-        <div className="language">English</div>
-        <div className="text">
-          <div className="text from">
-            <textarea
-              cols="30"
-              rows="10"
-              onInput={(e) => setInput(e.target.value)}
-              value={input}
-            ></textarea>
-          </div>
-          <span className="mic" onClick={() => setIsListening((prevState) => !prevState)}>
-            &#127897;
-          </span>
-        <div className="language">Turkish</div>
-          <div className="text to">
-            <textarea cols="30" rows="10" value={output} onChange={translate(output)}></textarea>
-          </div>
-        </div>
-        <div className="history" onClick={handleShowHistory}>&#8635;</div>
+    <div className="container">
+      <header>Basic Translator</header>
+      <div className="language">English</div>
+      <div className="text input">
+        <textarea
+          cols="30"
+          rows="10"
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          value={input}
+        ></textarea>
+      </div>
+      <span
+        className="mic"
+        onClick={() => setIsListening((prevState) => !prevState)}>
+        &#127897;
+      </span>
+      <div className="language">Turkish</div>
+      <div className="text output">
+        <textarea cols="30" rows="10" defaultValue={output}></textarea>
+      </div>
+      <div className="history" onClick={handleShowHistory}>
+        &#8635;
+        {tableShow && <div>{store.input}</div>}
       </div>
     </div>
   );
