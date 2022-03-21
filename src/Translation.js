@@ -51,7 +51,7 @@ const Translation = () => {
 
   const handleKeyDown = (event) => {
     if (event.keyCode === 8) {
-      setInterimInput([...interimInput, event.target.value,]);
+      setInterimInput([...interimInput, event.target.value]);
       setInterimOutput([...interimOutput, output]);
     } else {
       setInterimInput([]);
