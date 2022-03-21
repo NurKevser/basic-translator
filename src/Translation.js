@@ -16,12 +16,18 @@ const Translation = () => {
   const [interimInput, setInterimInput] = useState([]);
   const [interimOutput, setInterimOutput] = useState([]);
   const [tableShow, setTableShow] = useState(false);
-  const [history, setHistory] = useState(
-    JSON.parse(localStorage.getItem("LocalHistory"))
-  );
+  // const [history, setHistory] = useState(
+  //   (JSON.parse(localStorage.getItem("LocalHistory")) || {input: [], output:[]})
+  // );
+
+  const [history, setHistory] = useState((JSON.parse(localStorage.getItem("LocalHistory")) || []))
 
   const store = JSON.parse(localStorage.getItem("LocalHistory"));
 
+  // useEffect(() => {
+  //   getHistory();
+  // }, []);
+console.log("history",history);
   useEffect(() => {
     translate(output);
   }, [input]);
@@ -34,25 +40,34 @@ const Translation = () => {
     setTableShow(!tableShow);
   };
 
+  // const getHistory = () => {
+  //   const localHistory = localStorage.getItem("LocalHistory") ?? [];
+  // };
+
   const handleInput = (event) => {
     setInput(event.target.value);
-    if (event.target.value.trim() === "" || event.target.value.trim() === " ") {
-      setHistory({
-        input: [...history.input, interimInput[0]],
-        output: [...history.output, interimOutput[0]],
-      });
-      localStorage.setItem(
-        "LocalHistory",
-        JSON.stringify({
-          input: [...history.input, interimInput[0]],
-          output: [...history.output, interimOutput[0]],
-        })
-      );
-      setInterimInput([]);
-      setInterimOutput([]);
-    }
-  };
-
+    console.log(event.taget.value);
+    if (event.target.value.trim() === "") {
+      // setHistory({
+        //   input: [...history.input, interimInput[0]],
+        //   output: [...history.output, interimOutput[0]],
+        // });
+        
+        setHistory([...history, {input:interimInput[0], output:interimOutput[0]}])
+        localStorage.setItem(
+          "LocalHistory",
+          JSON.stringify([...history, {input:interimInput[0], output:interimOutput[0]}])
+          // JSON.stringify({
+            //   input: [...history.input, interimInput[0]],
+            //   output: [...history.output, interimOutput[0]],
+            // })
+            );
+            setInterimInput([]);
+            setInterimOutput([]);
+          }
+        };
+        
+        
   const handleKeyDown = (event) => {
     if (event.keyCode === 8) {
       // setHistory(event.target.value)
@@ -122,7 +137,7 @@ const Translation = () => {
           <textarea
             cols="30"
             rows="10"
-            onInput={handleInput}
+            onChange={handleInput}
             onKeyDown={handleKeyDown}
             value={input}
           ></textarea>
