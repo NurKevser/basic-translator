@@ -46,6 +46,8 @@ const Translation = () => {
           { input: interimInput[0].trim(), output: interimOutput[0] },
         ])
       );
+      setInterimInput([]);
+      setInterimOutput([]);
     }
   };
 
