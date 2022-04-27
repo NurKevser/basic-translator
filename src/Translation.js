@@ -34,7 +34,7 @@ const Translation = () => {
 
   const handleInput = (event) => {
     setInput(event.target.value);
-    if (event.target.value === "") {
+    if (event.target.value === "") { //when user delete whole input (input is empty)
       setHistory([
         ...history,
         { input: interimInput[0].trim(), output: interimOutput[0] },
@@ -89,7 +89,7 @@ const Translation = () => {
     };
   };
 
-  const API_KEY = "AIzaSyAsXHjBeoy5CDgNgp6lWUnIo-d3NraDho8";
+  const API_KEY = "YOUR_API_KEY";
   const DETECT_LANG = "en";
   const TARGET_LANG = "tr";
 
